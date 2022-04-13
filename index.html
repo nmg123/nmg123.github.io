@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+    <link rel="stylesheet" href="css/main.css" />
+    <title>proj canvas</title>
+  </head>
+  <nav>
+  <div class="Nav-bar-bg"> <span class="Gallery Text-Style">
+    Gallery
+  </span></div>
+</nav>
+<div class="editor-bg">
+  <body onload="init()">
+    <h1></h1>
+    <div class="canvas-container">
+        <canvas
+        id="my-canvas"
+        onclick="draw(event)"
+      ></canvas>
+    </div>
+
+    <img src="img/dog.jpg" hidden />
+
+
+    <button onclick="setShape('triangle')">Triangle</button>
+    <button onclick="setShape('rect')">Rect</button>
+    <button onclick="setShape('text')">Text</button>
+    <form id="text-input">
+      <input type="text" onkeyup="setTitle(this.value)" />
+      <input type="text" onkeyup="setFooter(this.value)" />
+      <input
+        type="file"
+        accept="image/png, image/jpeg"
+        onchange="setImg(this)"
+      />
+    </form>
+    <button onclick="setShape('line')">Line</button>
+    <button onclick="init()">Clear</button>
+    <a href="#" onclick="downloadCanvas(this)" download="myphoto">Download</a>
+</div>
+<div class="Rectangle-4"></div>
+    <script src="js/main.js"></script>
+  </body>
+</html>

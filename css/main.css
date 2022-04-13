@@ -1,0 +1,52 @@
+
+.Nav-bar-bg {
+    width: 100%;
+    height: 33px;
+    padding: 8.5px 25px 1.7px 24.5px;
+    background-color: #ff7f00;
+  }
+  .Gallery {
+    width: 36.7px;
+    height: 22.8px;
+    margin: 0 4.5px 0 0;
+    font-family: Montserrat;
+    font-size: 9.5px;
+    font-weight: normal;
+    font-stretch: normal;
+    font-style: normal;
+    line-height: 1.2;
+    letter-spacing: normal;
+    text-align: center;
+    color: #fff;
+    position: right;
+  }  
+
+  .editor-bg {
+    width: 1135px;
+    height: 700px;
+    margin: 0 0 12.8px;
+    padding: 13px 67.5px 12.5px 345.5px;
+    background-color: #e3e3e3;
+  }
+  .Rectangle-4 {
+    width: 1115px;
+    height: 103.5px;
+    padding: 38.5px 221.6px 4px 221.4px;
+    background-color: #ff7f00;
+  }  
+.canvas-container {
+    width: 500px;
+    height: 275.5px;
+    margin: 0 0 24.3px;
+    padding: 5.5px 0 96.2px;
+    object-fit: contain;
+}
+
+canvas {
+    width: 500px;
+    height: 500px;
+    display: block;
+    margin: 0 auto;
+    /* outline: 1px solid black; */
+    background-color: #fff;
+}
