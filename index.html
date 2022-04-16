@@ -39,8 +39,7 @@
           />
         </div>
         <div>
-          <h3>Background</h3>
-          <button class="upload-photo">Upload Photo</button>
+          <button class="upload-photo">Choose Photo</button>
           <div class="upload-photo">
             Choose File...
             <input type="file" class="upload_btn" onchange="setImg(this)" />
@@ -162,12 +161,14 @@
             Share To Facsebook
           </button>
         </div>
+        <div class="btn-sixth-line">
         <button class="share-to-fb" onclick="saveMeme()">
           Save Meme As New
         </button>
-        <button class="share-to-fb" onclick="saveMeme(true)">
+        <button class="update-meme" onclick="saveMeme(true)">
           Update Meme
         </button>
+      </div>
       </form>
     </div>
     <script src="js/main.js"></script>

@@ -1,3 +1,17 @@
+.Nav-bar-bg {
+  width: 97%;
+  height: 90px;
+  padding: 8.5px 25px 1.7px 24.5px;
+  background-color: #ff7f00;
+}
+.logo{
+  position: relative;
+  bottom: -27%;
+  width: 150px;
+  margin: 3.5px 400.8px 8.3px 0;
+  object-fit: contain;
+}
+
 div.gallery {
     border: 1px solid #ccc;
   }
