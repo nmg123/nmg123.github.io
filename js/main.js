@@ -1,48 +1,197 @@
 var gElCanvas;
 var gCtx;
-var gCurrShape = "triangle";
-
 let canvasContent;
+let currentTextIndex;
+let currentObj;
+const gTouchEvs = ["touchstart", "touchmove", "touchend"];
+
+const fonts = ["Sigmar One", "ariel", "david"];
+
+const memes = [
+  {
+    img: "/meme-imgs (square)/1.jpg",
+    type: "bad",
+  },
+  {
+    img: "/meme-imgs (square)/2.jpg",
+    type: "cute",
+  },
+  {
+    img: "/meme-imgs (square)/3.jpg",
+    type: "cute",
+  },
+  {
+    img: "/meme-imgs (square)/4.jpg",
+    type: "cute",
+  },
+  {
+    img: "/meme-imgs (square)/5.jpg",
+    type: "bad",
+  },
+  {
+    img: "/meme-imgs (square)/6.jpg",
+    type: "funny",
+  },
+];
+
+function getDefaultTextSettings() {
+  const defaultPositionX = gElCanvas.width / 2;
+  const defaultPositionY = gElCanvas.width / 10;
+
+  return {
+    txt: "YOUR TEXT COMES HERE",
+    position: {
+      x: defaultPositionX,
+      y: defaultPositionY,
+    },
+    size: 30,
+    alignment: "center",
+    color: "#feffff",
+    font: "david",
+    strokeStyle: "#000000",
+    isDrag: false,
+  };
+}
+
+function loadFromStorage(key) {
+  const json = localStorage.getItem(key);
+  const val = JSON.parse(json);
+  return val;
+}
+
+function removeFromStorage(key) {
+  localStorage.removeItem(key);
+}
+
+function saveToStorage(key, val) {
+  var json = JSON.stringify(val);
+  localStorage.setItem(key, json);
+}
+
+function loadCanvasContent() {
+  const ongoing = loadFromStorage("ongoing");
+  if (ongoing) {
+    canvasContent = ongoing;
+  } else {
+    canvasContent = {
+      txt: [getDefaultTextSettings()],
+      img: null,
+      emojis: [],
+    };
+  }
+}
+
+function getRandomInt(min, max) {
+  return Math.floor(Math.random() * (max - min) + min);
+}
+
+function saveMeme(update) {
+  let savedMemes = loadFromStorage("savedMemes");
+  if (!savedMemes) {
+    savedMemes = [];
+  }
+
+  const data = gElCanvas.toDataURL();
+
+  canvasContent.dataUrl = data;
+
+  if (!update) {
+    canvasContent.id = getRandomInt(10, 9999);
+  } else {
+    const index = savedMemes.findIndex((meme) => meme.id === canvasContent.id);
+    savedMemes.shift(index);
+  }
+
+  savedMemes.push(canvasContent);
+  saveToStorage("savedMemes", savedMemes);
+}
 
 function init() {
   gElCanvas = document.querySelector("#my-canvas");
   gCtx = gElCanvas.getContext("2d");
   document.getElementById("text-input").reset();
-  clearCanvas();
-  canvasContent = {
-    title: null,
-    footer: null,
-    img: null,
-  };
-  // console.log('ctx', gCtx);
+  addMouseListeners();
+  addTouchListeners();
 
-  // drawLine(0, 0, 250, 250)
-  // clearCanvas()
-  // drawTriangle(0, 0)
-  // drawRect(50, 50)
-  // drawArc(50, 50);
-  // drawText('HELLO WORD !', gElCanvas.width / 2, gElCanvas.height / 2)
-  // saveAndRestoreExample()
-  // drawImg()
-  // drawImg2()
+  currentTextIndex = 0;
+
+  loadCanvasContent();
 
   window.addEventListener("resize", resizeCanvas);
-  // drawText('Nothing like a good stretch ', 0, 225)
-  // window.addEventListener('resize', () => {
-  //     resizeCanvas()
-  //         // Debouncing?..
-  //     drawText('Nothing like a good stretch ', 0, 225)
-  // })
 
-  // click on canvas
+  const select = document.getElementById("select");
+
+  for (let a = 0; a < fonts.length; a++) {
+    const opt = document.createElement("option");
+    opt.value = opt.innerHTML = fonts[a];
+    opt.style.fontFamily = fonts[a];
+    select.add(opt);
+  }
+
+  currentObj = canvasContent.txt[0];
+  renderCanvas();
 }
 
-function drawLine(x, y, xEnd = 250, yEnd = 250) {
-  gCtx.lineWidth = 2;
-  gCtx.moveTo(x, y);
-  gCtx.lineTo(xEnd, yEnd);
-  gCtx.strokeStyle = "green";
-  gCtx.stroke();
+function renderSavedMemes() {
+  const savedMemes = loadFromStorage("savedMemes");
+
+  if (savedMemes) {
+    let html = "";
+
+    savedMemes.forEach((meme) => {
+      html += `<div class="responsive" onclick="setMemeFromSaved(${meme.id})">
+      <div class="gallery">
+          <img
+            src="${meme.dataUrl}"
+            alt="Forest"
+            width="600"
+            height="400"
+          />
+      </div>
+    </div>`;
+    });
+
+    document.getElementById("memes-container").innerHTML = html;
+  }
+}
+function renderMemes(type) {
+  loadCanvasContent();
+  let filteredMemes = memes;
+  if (type) {
+    filteredMemes = memes.filter((meme) => meme.type === type);
+  }
+
+  let html = "";
+  filteredMemes.forEach((meme) => {
+    html += `<div class="responsive" onclick="setImgFromGallery('${meme.img}')">
+    <div class="gallery">
+        <img
+          src="${meme.img}"
+          alt="Forest"
+          width="600"
+          height="400"
+        />
+    </div>
+  </div>`;
+  });
+
+  document.getElementById("memes-container").innerHTML = html;
+}
+
+function setImgFromGallery(img) {
+  canvasContent.img = img;
+  saveToStorage("ongoing", canvasContent);
+
+  document.location = "index.html";
+}
+
+function setMemeFromSaved(memeId) {
+  const savedMemes = loadFromStorage("savedMemes");
+  const meme = savedMemes.find((meme) => meme.id === memeId);
+
+  saveToStorage("ongoing", meme);
+
+  document.location = "index.html";
 }
 
 function setImg(event) {
@@ -55,116 +204,160 @@ function setImg(event) {
     renderCanvas();
   };
 }
-function drawTriangle(x, y) {
-  // gCtx.beginPath();
-  gCtx.lineWidth = 5;
-  gCtx.moveTo(x, y);
-  gCtx.lineTo(200, 330);
-  gCtx.lineTo(50, 370);
-  gCtx.lineTo(x, y);
-  // gCtx.closePath();
-  gCtx.fillStyle = "gold";
-  gCtx.fill();
-  gCtx.strokeStyle = "purple";
-  gCtx.stroke();
+
+function setTextColor(color) {
+  canvasContent.txt[currentTextIndex].color = color;
+  renderCanvas();
 }
 
-function drawRect(x, y) {
-  gCtx.rect(x, y, 200, 200);
-  gCtx.fillStyle = "green";
-  gCtx.fillRect(x, y, 200, 200);
-  gCtx.strokeStyle = "red";
-  gCtx.stroke();
+function setStrokeColor(color) {
+  canvasContent.txt[currentTextIndex].strokeStyle = color;
+  renderCanvas();
 }
 
-function drawArc(x, y) {
-  gCtx.lineWidth = 2;
-  gCtx.arc(x, y, 50, 0, 2 * Math.PI);
-  gCtx.fillStyle = "blue";
-  gCtx.fill();
-  gCtx.strokeStyle = "black";
-  gCtx.stroke();
+function setFont(font) {
+  canvasContent.txt[currentTextIndex].font = font;
+  renderCanvas();
 }
 
 function renderText() {
-  drawText("title");
-  drawText("footer");
+  canvasContent.txt.forEach((text) => {
+    gCtx.textAlign = text.alignment;
+
+    gCtx.fillStyle = text.color;
+
+    gCtx.font = `${text.size}px ${text.font}`;
+
+    gCtx.strokeStyle = text.strokeStyle;
+
+    gCtx.fillText(text.txt, text.position.x, text.position.y);
+    gCtx.strokeText(text.txt, text.position.x, text.position.y);
+  });
 }
+
+function renderEmojis() {
+  canvasContent.emojis.forEach((emoji) => {
+    gCtx.fillText(emoji.emoji, emoji.position.x, emoji.position.y);
+  });
+}
+
+function renderElements() {
+  renderText();
+  renderEmojis();
+}
+
 function renderCanvas() {
   clearCanvas();
 
   if (canvasContent.img) {
-    drawImg2(canvasContent.img, renderText);
+    drawImage(canvasContent.img, renderElements);
   } else {
-    renderText();
+    renderElements();
   }
+
+  if (canvasContent.txt.length > 0) {
+    document.getElementById("stroke-color").value =
+      canvasContent.txt[currentTextIndex].strokeStyle;
+
+    document.getElementById("text-color").value =
+      canvasContent.txt[currentTextIndex].color;
+
+    document.getElementById("select").value =
+      canvasContent.txt[currentTextIndex].font;
+  }
+
+  saveToStorage("ongoing", canvasContent);
 }
 
-function setTitle(txt) {
-  canvasContent.title = txt;
+function setText(txt) {
+  if (!canvasContent.txt[currentTextIndex]) {
+    canvasContent.txt[currentTextIndex] = getDefaultTextSettings();
+  }
+  canvasContent.txt[currentTextIndex].txt = txt;
   renderCanvas();
-}
-
-function setFooter(txt) {
-  canvasContent.footer = txt;
-  renderCanvas();
-}
-
-function drawText(type) {
-  let txt = canvasContent.title;
-  gCtx.textBaseline = "middle";
-  gCtx.textAlign = "center";
-
-  gCtx.fillStyle = "blue";
-  gCtx.font = "50px david";
-
-  gCtx.strokeStyle = "red";
-  let positionX = gElCanvas.width / 2;
-  let positionY = gElCanvas.width / 10;
-
-  if (type === "footer") {
-    positionY = gElCanvas.width - gElCanvas.width / 10;
-    txt = canvasContent.footer;
-  }
-  if (!txt) {
-    return;
-  }
-  gCtx.strokeText(txt, positionX, positionY);
-}
-
-function saveAndRestoreExample() {
-  gCtx.font = "50px Arial";
-  gCtx.strokeStyle = "green";
-  gCtx.strokeText("Saving the context", 10, 50);
-  gCtx.save();
-  gCtx.font = "30px david";
-  gCtx.strokeStyle = "black";
-  gCtx.strokeText("Switching to something else", 10, 100);
-  gCtx.restore();
-  gCtx.strokeText("Back to previous", 10, 150);
 }
 
 function clearCanvas() {
   gCtx.clearRect(0, 0, gElCanvas.width, gElCanvas.height);
-  // You may clear part of the canvas
-  // gCtx.clearRect(0, 0, gCanvas.width, gCanvas.height/4)
 }
 
-function drawImg() {
-  var elImg = document.querySelector("img");
-  // Naive approach:
-  // there is a risk that image is not loaded yet and nothing will be drawn on canvas
-  gCtx.drawImage(elImg, 0, 0, gElCanvas.width, gElCanvas.height);
-  // drawLine(50, 50)
+function setSize(direction) {
+  let step = 5;
+  if (direction === "down") {
+    step = step * -1;
+  }
+
+  const currSize = canvasContent.txt[currentTextIndex].size;
+  canvasContent.txt[currentTextIndex].size = currSize + step;
+
+  renderCanvas();
 }
 
-function drawImg2(base64, onLoad) {
+function setPosition(direction) {
+  let step = -5;
+  if (direction === "down") {
+    step = step * -1;
+  }
+
+  const currPos = canvasContent.txt[currentTextIndex].position;
+  canvasContent.txt[currentTextIndex].position.y = currPos.y + step;
+
+  renderCanvas();
+}
+
+function setAlignment(alignment) {
+  canvasContent.txt[currentTextIndex].alignment = alignment;
+
+  renderCanvas();
+}
+
+function remove() {
+  if (currentObj.txt) {
+    const index = canvasContent.txt.findIndex((obj) => obj === currentObj);
+    canvasContent.txt.shift(index);
+    if (currentTextIndex > 0) {
+      currentTextIndex--;
+    }
+    document.getElementById("text-input").reset();
+  }
+
+  if (currentObj.emoji) {
+    const index = canvasContent.emojis.findIndex((obj) => obj === currentObj);
+    canvasContent.emojis.shift(index);
+  }
+
+  renderCanvas();
+}
+
+function drawImage(image, onLoad) {
   var img = new Image();
-  img.src = base64;
+  img.src = image;
   img.onload = () => {
     gCtx.drawImage(img, 0, 0, gElCanvas.width, gElCanvas.height);
     onLoad();
   };
+}
+
+function addText() {
+  if (canvasContent.txt.length != 0) {
+    currentTextIndex++;
+  }
+  canvasContent.txt.push(getDefaultTextSettings());
+  document.getElementById("text-input").reset();
+  renderCanvas();
+}
+
+function addEmoji(emoji) {
+  canvasContent.emojis.push({
+    emoji,
+    position: {
+      x: 100,
+      y: 30,
+    },
+    isDrag: false,
+  });
+
+  renderCanvas();
 }
 
 function downloadCanvas(elLink) {
@@ -181,25 +374,99 @@ function resizeCanvas() {
   //   gCanvas.height = elContainer.offsetHeight
 }
 
-function setShape(shape) {
-  gCurrShape = shape;
+function getObj(ev) {
+  const { offsetX, offsetY } = ev;
+
+  const objects = [...canvasContent.txt, ...canvasContent.emojis];
+  let choosenObj = objects[0];
+
+  objects.forEach((obj) => {
+    if (!obj) {
+      return;
+    }
+    const diffFromCurrentX = choosenObj.position.x - offsetX;
+    const diffFromCurrentY = choosenObj.position.y - offsetY;
+
+    const diffFromObjX = obj.position.x - offsetX;
+    const diffFromObjY = obj.position.y - offsetY;
+
+    if (diffFromObjY < 0) {
+      return;
+    }
+
+    if (diffFromObjY < diffFromCurrentY || diffFromCurrentY < 0) {
+      choosenObj = obj;
+    }
+  });
+
+  return choosenObj;
 }
 
-function draw(ev) {
-  // const offsetX = ev.offsetX;
-  // const offsetY = ev.offsetY;
-  console.log(ev);
-  const { offsetX, offsetY } = ev;
-  console.log(offsetX, offsetY);
-  switch (gCurrShape) {
-    case "triangle":
-      drawTriangle(offsetX, offsetY);
-      break;
-    case "rect":
-      drawRect(offsetX, offsetY);
-      break;
-    case "line":
-      drawLine(offsetX, offsetY);
-      break;
+function addMouseListeners() {
+  gElCanvas.addEventListener("mousemove", onMove);
+  gElCanvas.addEventListener("mousedown", onPress);
+  gElCanvas.addEventListener("mouseup", onUp);
+}
+
+function addTouchListeners() {
+  gElCanvas.addEventListener("touchmove", onMove);
+  gElCanvas.addEventListener("touchstart", onPress);
+  gElCanvas.addEventListener("touchend", onUp);
+}
+
+function getEvPos(ev) {
+  var pos = {
+    x: ev.offsetX,
+    y: ev.offsetY,
+  };
+  if (gTouchEvs.includes(ev.type)) {
+    ev.preventDefault();
+    ev = ev.changedTouches[0];
+    pos = {
+      x: ev.pageX - ev.target.offsetLeft,
+      y: ev.pageY - ev.target.offsetTop,
+    };
   }
+  return pos;
+}
+
+function onMove(ev) {
+  if (!currentObj.isDrag) return;
+  const { offsetX, offsetY } = ev;
+
+  if (currentObj.txt) {
+    const index = canvasContent.txt.findIndex((obj) => obj === currentObj);
+    canvasContent.txt[index].position.x = offsetX;
+    canvasContent.txt[index].position.y = offsetY;
+  }
+  if (currentObj.emoji) {
+    const index = canvasContent.emojis.findIndex((obj) => obj === currentObj);
+    canvasContent.emojis[index].position.x = offsetX;
+    canvasContent.emojis[index].position.y = offsetY;
+  }
+
+  renderCanvas();
+}
+
+function onUp() {
+  currentObj.isDrag = false;
+  document.body.style.cursor = "grab";
+}
+
+function onPress(ev) {
+  const clickedObj = getObj(ev);
+  if (clickedObj !== currentObj) {
+    if (clickedObj.txt) {
+      document.getElementById("text").value = clickedObj.txt;
+      const index = canvasContent.txt.findIndex((obj) => obj === clickedObj);
+
+      currentTextIndex = index;
+    }
+
+    currentObj = clickedObj;
+    return;
+  }
+
+  currentObj.isDrag = true;
+  document.body.style.cursor = "grabbing";
 }
