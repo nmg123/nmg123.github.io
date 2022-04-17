@@ -4,19 +4,23 @@
     <meta charset="UTF-8" />
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <link rel="stylesheet" href="css/gallery.css" />
+    <link rel="stylesheet" href="css/main.css" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>gallery</title>
   </head>
   <body onload="renderMemes()">
-    <nav>
-      <div class="Nav-bar-bg">
-        <img class="logo" src="/DESIGN/LOGO/LOGO.png" />
-        <a class="Gallery Text-Style" href="gallery.html">Gallery</a>
-        <a class="Gallery Text-Style" href="saved.html">Saved</a>
-      </div>
-    </nav>
+    <div class="topnav" id="myTopnav">
+      <img class="logo" src="/DESIGN/LOGO/LOGO.png" />
+      <a href="/index.html" class="active">Home</a>
+      <a href="gallery.html">Gallery</a>
+      <a href="saved.html">Saved</a>
+      <a href="#about">About</a>
+      <a href="javascript:void(0);" class="icon" onclick="myFunction()">
+        <i class="fa fa-bars"></i>
+      </a>
+    </div>
     <h2>Responsive Image Gallery</h2>
-    <div>
+    <div class="responsive-img">
       <a onclick="renderMemes()">All</a>
       <a onclick="renderMemes('bad')">Bad</a>
       <a onclick="renderMemes('funny')">Funny</a>
