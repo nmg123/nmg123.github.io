@@ -4,17 +4,22 @@
     <meta charset="UTF-8" />
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <link rel="stylesheet" href="css/saved.css" />
+    <link rel="stylesheet" href="css/main.css" />
+
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>gallery</title>
   </head>
   <body onload="renderSavedMemes()">
-      <nav>
-    <div class="Nav-bar-bg">
+    <div class="topnav" id="myTopnav">
       <img class="logo" src="/DESIGN/LOGO/LOGO.png" />
-      <a class="Gallery Text-Style" href="gallery.html">Gallery</a>
-      <a class="Gallery Text-Style" href="saved.html">Saved</a>
+      <a href="#home" class="active">Home</a>
+      <a href="gallery.html">Gallery</a>
+      <a href="saved.html">Saved</a>
+      <a href="#about">About</a>
+      <a href="javascript:void(0);" class="icon" onclick="myFunction()">
+        <i class="fa fa-bars"></i>
+      </a>
     </div>
-  </nav>
     <h2>Saved img</h2>
     <div id="memes-container"></div>
     <script src="js/main.js"></script>
